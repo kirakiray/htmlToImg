@@ -47,13 +47,6 @@
             cloneEle = fakeImg;
 
             isimg = 1;
-
-            // cloneEle.setAttribute("crossOrigin", "Anonymous");
-            // cloneEle.src = b64;
-
-            // let nimg = new Image();
-            // nimg.src = b64;
-            // document.body.appendChild(nimg);
         }
 
         // 存放 img promise 的数组
@@ -131,9 +124,6 @@
             dpr
         }).then(() => {
 
-            // test
-            // document.body.appendChild(cloneEle);
-
             // 创建svg file
             let svgCode = `
         <svg xmlns="http://www.w3.org/2000/svg">
@@ -172,9 +162,6 @@
 
             // 设置图片
             tarImg.setAttribute("src", "data:image/svg+xml;charset=utf-8," + svgCode.replace(/\n/g, ""));
-
-            // test
-            // document.body.appendChild(tarImg);
         });
     });
 }));

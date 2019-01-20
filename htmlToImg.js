@@ -101,11 +101,16 @@
         }
     }
 
-    return (ele, options = {
-        type: "jpg",
-        quality: 1,
-        dpr: window.devicePixelRatio || 1
-    }) => new Promise((res, rej) => {
+    return (ele, options) => new Promise((res, rej) => {
+        let defaults = {
+            type: "jpg",
+            quality: 1,
+            dpr: window.devicePixelRatio || 1,
+            outType: "base64"
+        };
+
+        Object.assign(defaults, options);
+
         // 获取元素的大小
         let {
             clientWidth,
@@ -114,7 +119,7 @@
 
         let {
             dpr
-        } = options;
+        } = defaults;
 
         // 克隆元素
         let cloneEle = ele.cloneNode(true);
@@ -123,6 +128,9 @@
         mapEleStyle(ele, cloneEle, {
             dpr
         }).then(() => {
+
+            // test
+            // document.body.appendChild(cloneEle);
 
             // 创建svg file
             let svgCode = `
@@ -138,6 +146,14 @@
             tarImg.width = clientWidth * dpr;
             tarImg.height = clientHeight * dpr;
             tarImg.setAttribute("crossOrigin", 'Anonymous');
+
+
+            if (defaults.outType == "img") {
+                tarImg.setAttribute("src", "data:image/svg+xml;charset=utf-8," + svgCode.replace(/\n/g, "").replace(/ +/g, " "));
+                res(tarImg);
+                return;
+            }
+
             tarImg.addEventListener('load', e => {
                 // 生成canvas
                 let canvasEle = document.createElement("canvas");
@@ -150,18 +166,25 @@
 
                 // 转换base64
                 let base64;
-                switch (options.type) {
+                switch (defaults.type) {
                     case "jpg":
                     case "jpeg":
                         base64 = canvasEle.toDataURL("image/jpeg", 1);
                     default:
-                        base64 = canvasEle.toDataURL(options.type);
+                        base64 = canvasEle.toDataURL(defaults.type);
                 }
+
+                // test
+                // document.body.appendChild(canvasEle);
+
                 res(base64);
             });
 
             // 设置图片
-            tarImg.setAttribute("src", "data:image/svg+xml;charset=utf-8," + svgCode.replace(/\n/g, ""));
+            tarImg.setAttribute("src", "data:image/svg+xml;charset=utf-8," + svgCode.replace(/\n/g, "").replace(/ +/g, " "));
+
+            // test
+            // document.body.appendChild(tarImg);
         });
     });
 }));

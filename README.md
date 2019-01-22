@@ -18,3 +18,5 @@ A tiny library about conversion html code to img
 转换图片前，请确保目标元素内的图片元素(img , background-image element)的尺寸确定；
 
 [预览地址](https://kirakiray.github.io/htmlToImg/)
+
+适用于electron等chrome内核应用的库；Firefox和safari对svg to canvas 有莫名的bug；

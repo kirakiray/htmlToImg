@@ -105,7 +105,6 @@
         let defaults = {
             type: "jpg",
             quality: 1,
-            dpr: window.devicePixelRatio || 1,
             outType: "base64"
         };
 
@@ -117,9 +116,7 @@
             clientHeight
         } = ele;
 
-        let {
-            dpr
-        } = defaults;
+        let dpr = window.devicePixelRatio || 1;
 
         // 克隆元素
         let cloneEle = ele.cloneNode(true);
@@ -128,9 +125,9 @@
         mapEleStyle(ele, cloneEle, {
             dpr
         }).then(() => {
-
             // test
             // document.body.appendChild(cloneEle);
+
 
             // 创建svg file
             let svgCode = `
@@ -143,10 +140,16 @@
         </svg>`;
 
             let tarImg = new Image();
-            tarImg.width = clientWidth * dpr;
-            tarImg.height = clientHeight * dpr;
-            tarImg.setAttribute("crossOrigin", 'Anonymous');
 
+            // firefox特殊处理
+            if (navigator.userAgent.includes("Firefox") && dpr > 1) {
+                tarImg.width = clientWidth;
+                tarImg.height = clientHeight;
+            } else {
+                tarImg.width = clientWidth * dpr;
+                tarImg.height = clientHeight * dpr;
+            }
+            tarImg.setAttribute("crossOrigin", 'Anonymous');
 
             if (defaults.outType == "img") {
                 tarImg.setAttribute("src", "data:image/svg+xml;charset=utf-8," + svgCode.replace(/\n/g, "").replace(/ +/g, " "));
@@ -155,8 +158,13 @@
             }
 
             tarImg.addEventListener('load', e => {
+
                 // 生成canvas
                 let canvasEle = document.createElement("canvas");
+
+                // test
+                // document.body.appendChild(canvasEle);
+
                 canvasEle.width = clientWidth * dpr;
                 canvasEle.height = clientHeight * dpr;
                 let ctx = canvasEle.getContext("2d");
@@ -173,9 +181,6 @@
                     default:
                         base64 = canvasEle.toDataURL(defaults.type);
                 }
-
-                // test
-                // document.body.appendChild(canvasEle);
 
                 res(base64);
             });

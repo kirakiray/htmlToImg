@@ -28,6 +28,43 @@
         });
     }
 
+    // 画图
+    const imgToB64 = ({
+        img,
+        clientWidth,
+        clientHeight,
+        dpr,
+        type
+    }) => {
+        // 生成canvas
+        let canvasEle = document.createElement("canvas");
+
+        // test
+        // document.body.appendChild(canvasEle);
+
+        let imgWidth = clientWidth * dpr;
+        let imgHeight = clientHeight * dpr;
+
+        canvasEle.width = imgWidth;
+        canvasEle.height = imgHeight;
+        let ctx = canvasEle.getContext("2d");
+
+        // 坐标(0,0) 表示从此处开始绘制，相当于偏移。
+        ctx.drawImage(img, 0, 0, imgWidth, imgHeight);
+
+        // 转换base64
+        let base64;
+        switch (type) {
+            case "jpg":
+            case "jpeg":
+                base64 = canvasEle.toDataURL("image/jpeg", 1);
+            default:
+                base64 = canvasEle.toDataURL(type);
+        }
+
+        return base64;
+    }
+
     // 将主元素的元素style映射到克隆元素的style上
     const mapEleStyle = async (oriEle, cloneEle, options) => {
         let {
@@ -105,7 +142,8 @@
         let defaults = {
             type: "jpg",
             quality: 1,
-            outType: "base64"
+            outType: "base64",
+            // maxWidth: ""
         };
 
         Object.assign(defaults, options);
@@ -127,7 +165,6 @@
         }).then(() => {
             // test
             // document.body.appendChild(cloneEle);
-
 
             // 创建svg file
             let svgCode = `
@@ -158,28 +195,48 @@
             }
 
             tarImg.addEventListener('load', e => {
+                // 先转换成b64
+                let base64 = imgToB64({
+                    img: tarImg,
+                    clientWidth,
+                    clientHeight,
+                    dpr,
+                    type: defaults.type
+                });
 
-                // 生成canvas
-                let canvasEle = document.createElement("canvas");
+                // 判断是否超出规范大小
+                if (defaults.maxWidth || defaults.maxHeight) {
+                    // 计算新大小
+                    let newHeight = clientHeight;
+                    let newWidth = clientWidth;
 
-                // test
-                // document.body.appendChild(canvasEle);
+                    if (clientWidth > defaults.maxWidth) {
+                        newHeight = clientHeight / clientWidth * defaults.maxWidth;
+                        newWidth = defaults.maxWidth;
+                    }
 
-                canvasEle.width = clientWidth * dpr;
-                canvasEle.height = clientHeight * dpr;
-                let ctx = canvasEle.getContext("2d");
+                    if (newHeight > defaults.maxHeight) {
+                        newWidth = defaults.maxHeight * newWidth / newHeight;
+                        newHeight = defaults.maxHeight;
+                    }
 
-                // 坐标(0,0) 表示从此处开始绘制，相当于偏移。
-                ctx.drawImage(tarImg, 0, 0);
+                    // 重新生成图片
+                    let img = new Image();
+                    img.width = newWidth;
+                    img.height = newHeight;
 
-                // 转换base64
-                let base64;
-                switch (defaults.type) {
-                    case "jpg":
-                    case "jpeg":
-                        base64 = canvasEle.toDataURL("image/jpeg", 1);
-                    default:
-                        base64 = canvasEle.toDataURL(defaults.type);
+                    img.onload = () => {
+                        base64 = imgToB64({
+                            img,
+                            clientWidth: newWidth,
+                            clientHeight: newHeight,
+                            dpr,
+                            type: defaults.type
+                        });
+                        res(base64);
+                    }
+                    img.src = base64;
+                    return;
                 }
 
                 res(base64);

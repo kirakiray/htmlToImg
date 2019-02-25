@@ -143,7 +143,9 @@
             type: "jpg",
             quality: 1,
             outType: "base64",
-            // maxWidth: ""
+            // maxWidth: "",
+            width: "",
+            height: ""
         };
 
         Object.assign(defaults, options);
@@ -154,6 +156,11 @@
             clientHeight
         } = ele;
 
+        if (defaults.width && defaults.height) {
+            clientWidth = defaults.width;
+            clientHeight = defaults.height;
+        }
+
         let dpr = window.devicePixelRatio || 1;
 
         // 克隆元素
@@ -163,6 +170,12 @@
         mapEleStyle(ele, cloneEle, {
             dpr
         }).then(() => {
+            // 设置display
+            if (getComputedStyle(ele).display == "none") {
+                cloneEle.style.display = "block";
+                // debugger
+            }
+
             // test
             // document.body.appendChild(cloneEle);
 

@@ -26,13 +26,20 @@
 <body>
     <br>
     <br>
-    <div id="tarEle" style="width:201px;">
+    <div id="tarEle" style="width:201px;display: none;">
         <p class="atext">我是一段中文。</p>
         <p class="atext" style="color:red;">I am a piece of English</p>
         <p class="atext" style="color:blue;">私は言語です</p>
         <div class="tarBgDiv"></div>
-        <img src="img/microsoft.png" width="200">
+        <img src="img/microsoft.png" width="200" height="100">
     </div>
+    <!-- <div id="tarEle2" style="width:201px;">
+        <p class="atext">我是一段中文。</p>
+        <p class="atext" style="color:red;">I am a piece of English</p>
+        <p class="atext" style="color:blue;">私は言語です</p>
+        <div class="tarBgDiv"></div>
+        <img src="img/microsoft.png" width="200" height="100">
+    </div> -->
     <br>
     <br>
 </body>
@@ -40,7 +47,9 @@
     setTimeout(() => {
         htmlToImg(document.querySelector("#tarEle"), {
             maxWidth: 50,
-            maxHeight: 50
+            maxHeight: 50,
+            width:200,
+            height:400,
             // dpr: 1
         }).then(e => {
             let img = document.createElement('img');
